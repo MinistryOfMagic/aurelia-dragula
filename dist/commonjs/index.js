@@ -6,6 +6,8 @@ Object.defineProperty(exports, "__esModule", {
 exports.moveBefore = exports.DIRECTION = exports.Options = exports.Dragula = undefined;
 exports.configure = configure;
 
+var _aureliaFramework = require('aurelia-framework');
+
 var _options = require('./options');
 
 var _dragula = require('./dragula');
@@ -24,5 +26,5 @@ function configure(config, callback) {
     callback(defaults);
   }
 
-  config.globalResources(['./dragula-and-drop']);
+  config.globalResources([_aureliaFramework.PLATFORM.moduleName('./dragula-and-drop')]);
 }

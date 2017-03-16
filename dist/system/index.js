@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['./options', './dragula', './move-before'], function (_export, _context) {
+System.register(['aurelia-framework', './options', './dragula', './move-before'], function (_export, _context) {
   "use strict";
 
-  var Options, GLOBAL_OPTIONS, DIRECTION, Dragula, moveBefore;
+  var PLATFORM, Options, GLOBAL_OPTIONS, DIRECTION, Dragula, moveBefore;
   function configure(config, callback) {
     var defaults = new Options();
     config.container.registerInstance(GLOBAL_OPTIONS, defaults);
@@ -12,13 +12,15 @@ System.register(['./options', './dragula', './move-before'], function (_export, 
       callback(defaults);
     }
 
-    config.globalResources(['./dragula-and-drop']);
+    config.globalResources([PLATFORM.moduleName('./dragula-and-drop')]);
   }
 
   _export('configure', configure);
 
   return {
-    setters: [function (_options) {
+    setters: [function (_aureliaFramework) {
+      PLATFORM = _aureliaFramework.PLATFORM;
+    }, function (_options) {
       Options = _options.Options;
       GLOBAL_OPTIONS = _options.GLOBAL_OPTIONS;
       DIRECTION = _options.DIRECTION;

@@ -12,37 +12,39 @@ var through2 = require('through2');
 var tools = require('aurelia-tools');
 var concat = require('gulp-concat');
 var insert = require('gulp-insert');
+var htmlmin = require('gulp-htmlmin');
 
 var jsName = paths.packageName + '.js';
 
 gulp.task('build-system', function() {
   return gulp.src(paths.source)
-    .pipe(plumber({errorHandler: notify.onError('Error: <%= error.message %>')}))
-    .pipe(changed(paths.output, {extension: '.js'}))
-    .pipe(sourcemaps.init({loadMaps: true}))
+    .pipe(plumber({ errorHandler: notify.onError('Error: <%= error.message %>') }))
+    .pipe(changed(paths.output, { extension: '.js' }))
+    .pipe(sourcemaps.init({ loadMaps: true }))
     .pipe(to5(assign({}, compilerOptions.system())))
-    .pipe(sourcemaps.write({includeContent: false, sourceRoot: '/src'}))
+    .pipe(sourcemaps.write({ includeContent: false, sourceRoot: '/src' }))
     .pipe(gulp.dest(paths.output));
 });
 
 gulp.task('build', function(callback) {
   return runSequence(
     'clean',
-    'build-index',
-    ['build-es2015-temp', 'build-es2015', 'build-commonjs', 'build-amd', 'build-system'],
+    'build-index', ['build-es2015-temp', 'build-es2015', 'build-commonjs', 'build-amd', 'build-system', 'build-native'],
+    'build-html',
     'copy-css',
     callback
   );
 });
 
 
-gulp.task('build-index', function(){
+gulp.task('build-index', function() {
   var importsToAdd = [];
 
   return gulp.src([
-    paths.root + '*.js',
-    paths.root + '**/*.js',
-   '!' + paths.root + 'index.js'])
+      paths.root + '*.js',
+      paths.root + '**/*.js',
+      '!' + paths.root + 'index.js'
+    ])
     .pipe(through2.obj(function(file, enc, callback) {
       file.contents = new Buffer(tools.extractImports(file.contents.toString("utf8"), importsToAdd));
       this.push(file);
@@ -55,39 +57,55 @@ gulp.task('build-index', function(){
     .pipe(gulp.dest(paths.output));
 });
 
-gulp.task('build-es2015-temp', function () {
-    return gulp.src(paths.output + jsName)
-      .pipe(to5(assign({}, compilerOptions.commonjs())))
-      .pipe(gulp.dest(paths.output + 'temp'));
+gulp.task('build-es2015-temp', function() {
+  return gulp.src(paths.output + jsName)
+    .pipe(to5(assign({}, compilerOptions.commonjs())))
+    .pipe(gulp.dest(paths.output + 'temp'));
 });
 
-gulp.task('build-es2015', function () {
+gulp.task('build-es2015', function() {
   return gulp.src(paths.source)
     .pipe(to5(assign({}, compilerOptions.es2015())))
     .pipe(gulp.dest(paths.output + 'es2015'));
 });
 
-gulp.task('build-commonjs', function () {
+gulp.task('build-commonjs', function() {
   return gulp.src(paths.source)
     .pipe(to5(assign({}, compilerOptions.commonjs())))
     .pipe(gulp.dest(paths.output + 'commonjs'));
 });
 
-gulp.task('build-amd', function () {
+gulp.task('build-amd', function() {
   return gulp.src(paths.source)
     .pipe(to5(assign({}, compilerOptions.amd())))
     .pipe(gulp.dest(paths.output + 'amd'));
 });
 
-gulp.task('build-system', function () {
+gulp.task('build-system', function() {
   return gulp.src(paths.source)
     .pipe(to5(assign({}, compilerOptions.system())))
     .pipe(gulp.dest(paths.output + 'system'));
 });
 
+gulp.task('build-native', function() {
+  return gulp.src(paths.source)
+    .pipe(to5(assign({}, compilerOptions.native())))
+    .pipe(gulp.dest(paths.output + 'native-modules'));
+});
+
 gulp.task('copy-css', function() {
-  [ 'es2015', 'commonjs', 'amd', 'system'].forEach(function(dir) {
+  ['es2015', 'commonjs', 'amd', 'system', 'native-modules'].forEach(function(dir) {
     return gulp.src(paths.style)
+      .pipe(gulp.dest(paths.output + dir));
+  });
+});
+
+gulp.task('build-html', function() {
+  ['es2015', 'commonjs', 'amd', 'system', 'native-modules'].forEach(function(dir) {
+    return gulp.src(paths.html)
+      .pipe(plumber({ errorHandler: notify.onError('Error: <%= error.message %>') }))
+      .pipe(changed(paths.output + dir, { extension: '.html' }))
+      .pipe(htmlmin({ collapseWhitespace: true }))
       .pipe(gulp.dest(paths.output + dir));
   });
 });
