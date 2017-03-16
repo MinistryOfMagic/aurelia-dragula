@@ -61,7 +61,6 @@ export function rm(el, className) {
 @bindable({ name: 'outFn', attribute: 'out-fn', defaultBindingMode: bindingMode.oneTime })
 @bindable({ name: 'shadowFn', attribute: 'shadow-fn', defaultBindingMode: bindingMode.oneTime })
 @customElement('dragula-and-drop')
-@inlineView('<template><require from="./dragula.css"></require></template>')
 @inject(GLOBAL_OPTIONS)
 export class DragulaAndDrop {
 
@@ -143,8 +142,7 @@ export class DragulaAndDrop {
   _moves(item, source, handle, sibling) {
     if (typeof this.moves === 'function') {
       return this.moves({ item, source, handle, sibling });
-    }
-    else {
+    } else {
       return this.globalOptions.moves(item, source, handle, sibling);
     }
   }
@@ -152,8 +150,7 @@ export class DragulaAndDrop {
   _accepts(item, target, source, sibling) {
     if (typeof this.accepts === 'function') {
       return this.accepts({ item, target, source, sibling });
-    }
-    else {
+    } else {
       return this.globalOptions.accepts(item, target, source, sibling);
     }
   }
@@ -161,8 +158,7 @@ export class DragulaAndDrop {
   _invalid(item, handle) {
     if (typeof this.invalid === 'function') {
       return this.invalid({ item, handle });
-    }
-    else {
+    } else {
       return this.globalOptions.invalid(item, handle);
     }
   }
